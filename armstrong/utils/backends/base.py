@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.conf import settings as default_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
@@ -9,13 +9,16 @@ class MultipleBackendProxy(object):
 
 
 class GenericBackend(object):
-    def __init__(self, key):
+    def __init__(self, key, settings=None):
         self.key = key
+        if not settings:
+            settings = default_settings
+        self.settings = settings
 
     @property
     def configured_backend(self):
         try:
-            return getattr(settings, self.key)
+            return getattr(self.settings, self.key)
         except AttributeError:
             msg = "Unable to find '%s' backend, " \
                   "please make sure it is in your settings" % self.key

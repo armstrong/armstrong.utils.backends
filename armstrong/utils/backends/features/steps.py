@@ -3,6 +3,7 @@ from lettuce import *
 
 from armstrong.utils.backends.base import GenericBackend, MultipleBackendProxy
 from django.conf import settings
+import fudge
 
 
 @before.each_scenario
@@ -10,6 +11,8 @@ def setup_scenario(scenario):
     world.backend = None
     world.exception = None
     world.result = None
+    world.attr = None
+    world.backend_name = "%s.simple_backend" % simple_backend.__module__
 
 
 def null_backend(*args, **kwargs):
@@ -91,29 +94,30 @@ def expect_function(step):
             "Failed: %s == %s" % (world.result, world.expected_backend)
 
 
-@step(u'I access the "(.*)" property')
-def access_property(step, attr):
-    assert False, 'This step must be implemented'
-
-
 @step(u'I create a new GenericBackend object with a settings kwarg')
 def create_backend_with_settings(step):
-    assert False, 'This step must be implemented'
+    settings = fudge.Fake()
+    settings.has_attr(testable_backends = "%s.second_backend" % \
+            second_backend.__module__)
+
+    world.backend = GenericBackend("testable_backends", settings=settings)
 
 
 @step(u'I create a new GenericBackend object without a settings kwarg')
 def create_backend_without_settings(step):
-    assert False, 'This step must be implemented'
+    world.backend = GenericBackend("testable_backends")
 
 
 @step(u'it should pay attention to the configured settings')
 def expect_configured_settings(step):
-    assert False, 'This step must be implemented'
+    assert world.attr == "%s.second_backend" % second_backend.__module__
+    assert world.attr != "%s.simple_backend" % simple_backend.__module__
 
 
 @step(u'it should pay attention to the global settings')
 def expect_global_settings(step):
-    assert False, 'This step must be implemented'
+    assert world.attr != "%s.second_backend" % second_backend.__module__
+    assert world.attr == "%s.simple_backend" % simple_backend.__module__
 
 
 @step(u'I get the "(.*)" attribute')

@@ -22,13 +22,15 @@ Feature: GenericBackend
     Then I should get a MultipleBackendProxy object back
 
   Scenario: Injecting settings
-    Given I create a new GenericBackend object with a settings kwarg
-    When I access the "configured_backend" property
+    Given I have a string configured for the backend
+    And I create a new GenericBackend object with a settings kwarg
+    When I get the "configured_backend" attribute
     Then it should pay attention to the configured settings
 
   Scenario: Default settings
-    Given I create a new GenericBackend object without a settings kwarg
-    When I access the "configured_backend" property
+    Given I have a string configured for the backend
+    And I create a new GenericBackend object without a settings kwarg
+    When I get the "configured_backend" attribute
     Then it should pay attention to the global settings
 
   Scenario: Unable to find settings
