@@ -10,7 +10,7 @@ Feature: Backends
     Then I should have a copy of the originally configured backend
 
   Scenario: Multiple backends
-    Given I have a list of backends configured
+    Given I have a list configured for the backend
     And I create a new backend with the setting used
     When I call "get_backend" on that backend
     Then I should have a copy of MultipleBackends

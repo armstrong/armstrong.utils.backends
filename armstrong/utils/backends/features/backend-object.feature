@@ -4,18 +4,21 @@ Feature: GenericBackend
   I want to be able to interact with a GenericBackend instance
 
   Scenario: configured_backend
-    Given I have new GenericBackend object instantiated with a string
+    Given I have a string configured for the backend
+    And I instantiate a new GenericBackend
     When I get the "configured_backend" attribute
     Then it should be the same as the initial value passed to __init__
 
   Scenario: get_backend
-    Given I have new GenericBackend object instantiated with a string
-    When I call "get_backend" on that object
+    Given I have a string configured for the backend
+    And I instantiate a new GenericBackend
+    When I call "get_backend" on that backend
     Then I should get that function back as the result
 
   Scenario: get_backend with multiple backends
-    Given I have new GenericBackend object instantiated with a list
-    When I call "get_backend" on that object
+    Given I have a list configured for the backend
+    And I instantiate a new GenericBackend
+    When I call "get_backend" on that backend
     Then I should get a MultipleBackendProxy object back
 
   Scenario: Injecting settings
@@ -27,3 +30,9 @@ Feature: GenericBackend
     Given I create a new GenericBackend object without a settings kwarg
     When I access the "configured_backend" property
     Then it should pay attention to the global settings
+
+  Scenario: Unable to find settings
+    Given I instantiate a new GenericBackend with an unknown key
+    When I call "get_backend" on that backend
+    Then I expect to have an "ImproperlyConfigured" exception thrown
+    And have the message: "Unable to find 'unknown_and_unknowable' backend, please make sure it is in your settings"
