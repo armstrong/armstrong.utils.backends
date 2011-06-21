@@ -34,8 +34,13 @@ def expect_multiple_backends(step):
     assert False, 'This step must be implemented'
 
 
-@step(u'Given I have new GenericBackend object')
-def given_i_have_new_genericbackend_object(step):
+@step(u'I have new GenericBackend object instantiated with a string')
+def create_backend_with_string(step):
+    assert False, 'This step must be implemented'
+
+
+@step(u'I have new GenericBackend object instantiated with a list')
+def create_backend_with_list(step):
     assert False, 'This step must be implemented'
 
 
