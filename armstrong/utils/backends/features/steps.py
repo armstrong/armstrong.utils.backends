@@ -19,6 +19,12 @@ def setup_scenario(scenario):
     world.provided_args = None
     world.provided_kwargs = None
     world.backend_name = "%s.simple_backend" % simple_backend.__module__
+    world.original_settings = settings
+
+
+@after.each_scenario
+def teardown_scenario(scenario):
+    settings = world.original_settings
 
 
 def null_backend(*args, **kwargs):
@@ -37,7 +43,7 @@ second_backend.message = "I am the second backend"
 
 @step(u'I have a single backend configured')
 def configure_single_backend(step):
-    assert False, 'This step must be implemented'
+    settings.testable_backends = world.backend_name
 
 
 @step(u'I have a string configured for the backend')
@@ -56,7 +62,7 @@ def configure_list_of_backends(step):
 
 @step(u'I create a new backend with the setting used')
 def create_backend(step):
-    assert False, 'This step must be implemented'
+    world.backend = GenericBackend("testable_backends")
 
 
 @step(u'I call "(.*)" on that backend')
@@ -70,12 +76,21 @@ def backend_call(step, method):
 
 @step(u'I should have a copy of the originally configured backend')
 def expect_single_backend(step):
-    assert False, 'This step must be implemented'
+    assert world.result == simple_backend
 
 
 @step(u'I should have a copy of MultipleBackends')
 def expect_multiple_backends(step):
-    assert False, 'This step must be implemented'
+    assert_multiple_backend_proxy(world.result)
+
+
+@step(u'I should get a MultipleBackendProxy object back')
+def expect_multi_backend_proxy_backend(step):
+    assert_multiple_backend_proxy(world.result)
+
+
+def assert_multiple_backend_proxy(obj):
+    assert isinstance(obj, MultipleBackendProxy)
 
 
 
@@ -87,11 +102,6 @@ def create_backend_with_string(step):
 @step(u'I instantiate a new GenericBackend with an unknown key$')
 def create_backend_with_unknown_key(step):
     world.backend = GenericBackend("unknown_and_unknowable")
-
-
-@step(u'I have new GenericBackend object instantiated with a list')
-def create_backend_with_list(step):
-    assert False, 'This step must be implemented'
 
 
 @step(u'I should get that function back as the result')
@@ -135,11 +145,6 @@ def fetch_attribute(step, attr):
 @step(u'it should be the same as the initial value passed to __init__')
 def check_attr_for_original(step):
     assert world.attr == world.backend_name
-
-
-@step(u'I should get a MultipleBackendProxy object back')
-def expect_multi_backend_proxy_backend(step):
-    assert isinstance(world.result, MultipleBackendProxy)
 
 
 @step(u'I expect to have an "(.*)" exception thrown')
