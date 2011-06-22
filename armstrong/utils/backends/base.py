@@ -3,9 +3,19 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
 
+class Proxy(object):
+    def __init__(self, attr):
+        self.attr = attr
+
+    def __call__(self, **kwargs):
+        return self.attr(**kwargs)
+
 class MultipleBackendProxy(object):
     def __init__(self, *others):
         self.others = others
+
+    def __getattr__(self, key):
+        return Proxy(self.others[0])
 
 
 class GenericBackend(object):

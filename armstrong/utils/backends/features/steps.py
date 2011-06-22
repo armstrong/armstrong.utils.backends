@@ -2,8 +2,10 @@
 from lettuce import *
 
 from armstrong.utils.backends.base import GenericBackend, MultipleBackendProxy
+from armstrong.utils.backends import base
 from django.conf import settings
 import fudge
+import random
 
 
 @before.each_scenario
@@ -12,6 +14,10 @@ def setup_scenario(scenario):
     world.exception = None
     world.result = None
     world.attr = None
+    world.proxy = None
+    world.expected_return = None
+    world.provided_args = None
+    world.provided_kwargs = None
     world.backend_name = "%s.simple_backend" % simple_backend.__module__
 
 
@@ -146,3 +152,74 @@ def catch_exception(step, exception_name):
 def exception_message(step, message):
     assert world.exception.message == message, "%s != %s" % (
             world.exception.message, message)
+
+
+@step(u'I create a MultipleBackendProxy with one backend$')
+def create_simple_proxy(step):
+    world.expected_return = "some random value %d" % random.randint(100, 200)
+    fake = fudge.Fake(callable=True).returns(world.expected_return)
+    world.proxy = MultipleBackendProxy(fake)
+
+
+@step(u'I create a MultipleBackendProxy with one backend that takes args$')
+def create_proxy_with_args(step):
+    world.provided_args = {
+            "msg": "Hello world",
+            "random": random.randint(100, 200),
+    }
+    fake = fudge.Fake(callable=True) \
+            .with_args(**world.provided_args) \
+            .returns(world.provided_args)
+    world.proxy = MultipleBackendProxy(fake)
+    world.expected_return = world.provided_args
+
+
+@step(u'I create a MultipleBackendProxy with one backend that takes kwargs$')
+def create_proxy_with_kwargs(step):
+    world.provided_kwargs = {
+            "msg": "Hello world",
+            "random": random.randint(100, 200),
+    }
+    fake = fudge.Fake(callable=True) \
+            .with_args(**world.provided_kwargs) \
+            .returns(world.provided_kwargs)
+    world.proxy = MultipleBackendProxy(fake)
+    world.expected_return = world.provided_kwargs
+
+
+@step(u'I get a random attribute')
+def random_attr(step):
+    attr = "random_%d" % random.randint(10000, 20000)
+    world.attr = getattr(world.proxy, attr)
+
+
+@step(u'I should have a "(.*)" instance')
+def instance_check(step, class_name):
+    instance = getattr(base, class_name)
+
+    assert isinstance(world.attr, instance), "%s is not an instance of %s" % (
+            world.attr, instance)
+
+
+@step(u'When I call "(.*)"$')
+def when_i_call_group1(step, func):
+    world.attr = getattr(world.proxy, func)
+    world.result = world.attr()
+
+
+@step(u'I should get the result of from that backend')
+def check_proxied_return(step):
+    assert world.expected_return == world.result, \
+            '"%s" is not equal to "%s"' % (world.expected_return, world.result)
+
+
+@step(u'I call "(.*)" and pass args')
+def call_with_args(step, func):
+    world.attr = getattr(world.proxy, func)
+    world.result = world.attr(**world.provided_args)
+
+
+@step(u'I call "(.*)" and pass kwargs')
+def call_with_kwargs(step, func):
+    world.attr = getattr(world.proxy, func)
+    world.result = world.attr(**world.provided_kwargs)
