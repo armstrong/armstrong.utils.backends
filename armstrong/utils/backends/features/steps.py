@@ -19,8 +19,9 @@ def setup_scenario(scenario):
     world.expected_return = None
     world.provided_args = None
     world.provided_kwargs = None
-    world.backend_name = "%s.simple_backend" % simple_backend.__module__
+    world.backend_name = "%s.SimpleBackend" % SimpleBackend.__module__
     world.original_settings = settings
+    world.backend_class = SimpleBackend
 
 
 @after.each_scenario
@@ -28,18 +29,28 @@ def teardown_scenario(scenario):
     settings = world.original_settings
 
 
-def null_backend(*args, **kwargs):
-    pass
+class NullBackend(object):
+    def handle(self, *args, **kwargs):
+        return backends.DID_NOT_HANDLE
 
 
-def simple_backend(*args, **kwargs):
-    return simple_backend.message
-simple_backend.message = "I'm a simple backend"
+class SimpleBackend(object):
+    message = "I'm a simple backend"
 
+    def __init__(self, *args, **kwargs):
+        pass
 
-def second_backend(*args, **kwargs):
-    return second_backend.message
-second_backend.message = "I am the second backend"
+    def handle(self, *args, **kwargs):
+        return self.message
+
+class SecondBackend(object):
+    message = "I am the second backend"
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def handle(self, *args, **kwargs):
+        return self.message
 
 
 @step(u'I have a single backend configured')
@@ -49,15 +60,15 @@ def configure_single_backend(step):
 
 @step(u'I have a string configured for the backend')
 def given_i_have_a_string_configured_for_the_backend(step):
-    world.backend_name = "%s.simple_backend" % simple_backend.__module__
-    world.expected_backend = simple_backend
+    world.backend_name = "%s.SimpleBackend" % SimpleBackend.__module__
+    world.expected_backend = SimpleBackend
     settings.testable_backends = world.backend_name
 
 
 @step(u'I have a list configured for the backend')
 def configure_list_of_backends(step):
-    world.backend_name = ["%s.simple_backend" % simple_backend.__module__,
-                          "%s.second_backend" % second_backend.__module__, ]
+    world.backend_name = ["%s.SimpleBackend" % SimpleBackend.__module__,
+                          "%s.SecondBackend" % SecondBackend.__module__, ]
     settings.testable_backends = world.backend_name
 
 
@@ -77,7 +88,7 @@ def backend_call(step, method):
 
 @step(u'I should have a copy of the originally configured backend')
 def expect_single_backend(step):
-    assert world.result == simple_backend
+    assert world.result.__class__ == SimpleBackend
 
 
 @step(u'I should have a copy of MultipleBackends')
@@ -111,17 +122,22 @@ def create_backend_with_defaults(step):
     world.backend = GenericBackend("unknown_and_unknowable", defaults=defaults)
 
 
+@step(u'I should get an instantiated object back as the result')
+def then_i_should_get_an_instantiated_object_back_as_the_result(step):
+    assert isinstance(world.result, world.backend_class)
+
+
 @step(u'I should get that function back as the result')
 def expect_function(step):
-    assert world.result == world.expected_backend, \
+    assert world.result.__class__ == world.expected_backend, \
             "Failed: %s == %s" % (world.result, world.expected_backend)
 
 
 @step(u'I create a new GenericBackend object with a settings kwarg')
 def create_backend_with_settings(step):
     settings = fudge.Fake()
-    settings.has_attr(testable_backends = "%s.second_backend" % \
-            second_backend.__module__)
+    settings.has_attr(testable_backends = "%s.SecondBackend" % \
+            SecondBackend.__module__)
 
     world.backend = GenericBackend("testable_backends", settings=settings)
 
@@ -133,14 +149,14 @@ def create_backend_without_settings(step):
 
 @step(u'it should pay attention to the configured settings')
 def expect_configured_settings(step):
-    assert world.attr == "%s.second_backend" % second_backend.__module__
-    assert world.attr != "%s.simple_backend" % simple_backend.__module__
+    assert world.attr == "%s.SecondBackend" % SecondBackend.__module__
+    assert world.attr != "%s.SimpleBackend" % SimpleBackend.__module__
 
 
 @step(u'it should pay attention to the global settings')
 def expect_global_settings(step):
-    assert world.attr != "%s.second_backend" % second_backend.__module__
-    assert world.attr == "%s.simple_backend" % simple_backend.__module__
+    assert world.attr != "%s.SecondBackend" % SecondBackend.__module__
+    assert world.attr == "%s.SimpleBackend" % SimpleBackend.__module__
 
 
 @step(u'I get the "(.*)" attribute')

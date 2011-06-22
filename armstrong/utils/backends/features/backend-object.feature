@@ -13,7 +13,7 @@ Feature: GenericBackend
     Given I have a string configured for the backend
     And I instantiate a new GenericBackend
     When I call "get_backend" on that backend
-    Then I should get that function back as the result
+    Then I should get an instantiated object back as the result
 
   Scenario: get_backend with multiple backends
     Given I have a list configured for the backend

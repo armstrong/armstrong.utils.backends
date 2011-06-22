@@ -53,7 +53,7 @@ class GenericBackend(object):
             return getattr(backend_module, backend_class)
 
         if type(self.configured_backend) is str:
-            return to_backend(self.configured_backend)
+            return to_backend(self.configured_backend)()
         else:
-            return MultipleBackendProxy(*[to_backend(a) for a in
+            return MultipleBackendProxy(*[to_backend(a)() for a in
                 self.configured_backend])
