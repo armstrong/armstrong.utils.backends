@@ -154,11 +154,26 @@ def exception_message(step, message):
             world.exception.message, message)
 
 
+def setup_simple_backend():
+    world.expected_return = "some random value %d" % random.randint(100, 200)
+    return fudge.Fake().provides("handle").returns(world.expected_return)
+
+
+def setup_null_backend():
+    return fudge.Fake().provides("handle").returns(base.DID_NOT_HANDLE)
+
+
 @step(u'I create a MultipleBackendProxy with one backend$')
 def create_simple_proxy(step):
-    world.expected_return = "some random value %d" % random.randint(100, 200)
-    fake = fudge.Fake(callable=True).returns(world.expected_return)
+    fake = setup_simple_backend()
     world.proxy = MultipleBackendProxy(fake)
+
+
+@step(u'I create a MultipleBackendProxy with a null and real backend$')
+def create_double_proxy(step):
+    simple = setup_simple_backend()
+    null = setup_null_backend()
+    world.proxy = MultipleBackendProxy(null, simple)
 
 
 @step(u'I create a MultipleBackendProxy with one backend that takes args$')
@@ -167,8 +182,8 @@ def create_proxy_with_args(step):
             "msg": "Hello world",
             "random": random.randint(100, 200),
     }
-    fake = fudge.Fake(callable=True) \
-            .with_args(**world.provided_args) \
+    fake = fudge.Fake().expects("handle") \
+            .with_args(*world.provided_args) \
             .returns(world.provided_args)
     world.proxy = MultipleBackendProxy(fake)
     world.expected_return = world.provided_args
@@ -180,7 +195,7 @@ def create_proxy_with_kwargs(step):
             "msg": "Hello world",
             "random": random.randint(100, 200),
     }
-    fake = fudge.Fake(callable=True) \
+    fake = fudge.Fake().expects("handle") \
             .with_args(**world.provided_kwargs) \
             .returns(world.provided_kwargs)
     world.proxy = MultipleBackendProxy(fake)
@@ -207,16 +222,25 @@ def when_i_call_group1(step, func):
     world.result = world.attr()
 
 
-@step(u'I should get the result of from that backend')
-def check_proxied_return(step):
+def assert_real_backend_used():
     assert world.expected_return == world.result, \
             '"%s" is not equal to "%s"' % (world.expected_return, world.result)
+
+
+@step(u'I should get the result of the real backend')
+def check_proxied_return_for_second_backend(step):
+    assert_real_backend_used()
+
+
+@step(u'I should get the result of from that backend')
+def check_proxied_return(step):
+    assert_real_backend_used()
 
 
 @step(u'I call "(.*)" and pass args')
 def call_with_args(step, func):
     world.attr = getattr(world.proxy, func)
-    world.result = world.attr(**world.provided_args)
+    world.result = world.attr(*world.provided_args)
 
 
 @step(u'I call "(.*)" and pass kwargs')

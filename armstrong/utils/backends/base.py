@@ -3,19 +3,28 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
 
-class Proxy(object):
-    def __init__(self, attr):
-        self.attr = attr
+DID_NOT_HANDLE = "Random return to signify inability to handle"
 
-    def __call__(self, **kwargs):
-        return self.attr(**kwargs)
+
+class Proxy(object):
+    def __init__(self, possibles, attr):
+        self.attr = attr
+        self.possibles = possibles
+
+    def __call__(self, *args, **kwargs):
+        for possible in self.possibles:
+            ret = getattr(possible, self.attr, None)(*args, **kwargs)
+            if ret == DID_NOT_HANDLE:
+                continue
+            return ret
+
 
 class MultipleBackendProxy(object):
     def __init__(self, *others):
         self.others = others
 
     def __getattr__(self, key):
-        return Proxy(self.others[0])
+        return Proxy(self.others, key)
 
 
 class GenericBackend(object):
