@@ -2,6 +2,7 @@
 from lettuce import *
 
 from armstrong.utils.backends.base import GenericBackend, MultipleBackendProxy
+from armstrong.utils import backends
 from armstrong.utils.backends import base
 from django.conf import settings
 import fudge
@@ -171,7 +172,7 @@ def setup_simple_backend():
 
 
 def setup_null_backend():
-    return fudge.Fake().provides("handle").returns(base.DID_NOT_HANDLE)
+    return fudge.Fake().provides("handle").returns(backends.DID_NOT_HANDLE)
 
 
 @step(u'I create a MultipleBackendProxy with one backend$')
