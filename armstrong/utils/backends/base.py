@@ -28,17 +28,20 @@ class MultipleBackendProxy(object):
 
 
 class GenericBackend(object):
-    def __init__(self, key, settings=None):
+    def __init__(self, key, settings=None, defaults=None):
         self.key = key
         if not settings:
             settings = default_settings
         self.settings = settings
+        self.defaults = defaults
 
     @property
     def configured_backend(self):
         try:
             return getattr(self.settings, self.key)
         except AttributeError:
+            if self.defaults:
+                return self.defaults
             msg = "Unable to find '%s' backend, " \
                   "please make sure it is in your settings" % self.key
             raise ImproperlyConfigured(msg)

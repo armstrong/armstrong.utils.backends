@@ -38,3 +38,8 @@ Feature: GenericBackend
     When I call "get_backend" on that backend
     Then I expect to have an "ImproperlyConfigured" exception thrown
     And have the message: "Unable to find 'unknown_and_unknowable' backend, please make sure it is in your settings"
+
+  Scenario: Default backends
+    Given I instantiate a new GenericBackend with an unknown key and defaults
+    When I call "get_backend" on that backend
+    Then I should get that function back as the result

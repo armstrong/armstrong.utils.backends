@@ -104,6 +104,12 @@ def create_backend_with_unknown_key(step):
     world.backend = GenericBackend("unknown_and_unknowable")
 
 
+@step(u'I instantiate a new GenericBackend with an unknown key and defaults$')
+def create_backend_with_defaults(step):
+    defaults = world.backend_name
+    world.backend = GenericBackend("unknown_and_unknowable", defaults=defaults)
+
+
 @step(u'I should get that function back as the result')
 def expect_function(step):
     assert world.result == world.expected_backend, \
