@@ -9,14 +9,48 @@ Generic backend system to use throughout Armstrong
 
 Usage
 -----
+You can use this to handle loading one or more "backends" that need to be
+configured at runtime.  To create a new ``backend`` object, you would do
+something like this in your ``__init__.py``::
 
-**TODO**
+    backends = GenericBackend("MY_BACKEND_KEY")
+
+``MY_BACKEND_KEY`` is the name of the key that the end user sets in their
+``settings.py`` file.  The end-user should set it to either a string or a list.
+
+You can also provide a default backend (or backends) by setting the
+``defaults`` kwarg for ``GenericBackend``::
+
+    default_backends = ["myapp.backends.TwitterBackend",
+                        "myapp.backends.FacebookBackend", ]
+    backends = GenericBackend("MY_BACKEND_KEY", defaults=default_backends)
+
+When you're ready to use the backends, you can call ``get_backend`` to retrieve
+the backend to use.  This is done after instantiation to allow for the value to
+change depending on the context that it was called in.
+
+
+Writing Backends
+""""""""""""""""
+Backends are simple objects that do any particular task.  Beyond using
+``get_backend`` to handle the creation of the backend, you treat it as if you
+were calling it directly.
+
+All attributes (and methods) accessed on the backend are proxied to handle
+dispatching to multiple backends.
+
+All backends should return something.  If they were unable to process the
+response they should return ``armstrong.utils.backends.DID_NOT_HANDLE``
+
 
 Installation
 ------------
 
-**TODO**
+Use `pip`_ to install like this::
 
+    pip install armstrong.utils.backends
+
+.. _pip: http://www.pip-installer.org/
 
 Contributing
 ------------
