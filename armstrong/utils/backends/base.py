@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
 
-DID_NOT_HANDLE = "Random return to signify inability to handle"
+DID_NOT_HANDLE = object()
 
 
 class Proxy(object):
@@ -14,7 +14,7 @@ class Proxy(object):
     def __call__(self, *args, **kwargs):
         for possible in self.possibles:
             ret = getattr(possible, self.attr, None)(*args, **kwargs)
-            if ret == DID_NOT_HANDLE:
+            if ret is DID_NOT_HANDLE:
                 continue
             return ret
 
