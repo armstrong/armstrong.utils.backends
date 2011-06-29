@@ -7,7 +7,7 @@ from armstrong.utils.backends import base
 from django.conf import settings
 import fudge
 import random
-
+import sys
 
 @before.each_scenario
 def setup_scenario(scenario):
@@ -34,23 +34,27 @@ class NullBackend(object):
         return backends.DID_NOT_HANDLE
 
 
-class SimpleBackend(object):
+class BaseBackend(object):
+    message = "I'm a base backend"
+    arguments = None
+    kwarguments = None
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0:
+            self.arguments = args
+        if len(kwargs) > 0:
+            self.kwarguments = kwargs
+
+    def handle(self, *args, **kwargs):
+        return self.message    
+
+
+class SimpleBackend(BaseBackend):
     message = "I'm a simple backend"
 
-    def __init__(self, *args, **kwargs):
-        pass
 
-    def handle(self, *args, **kwargs):
-        return self.message
-
-class SecondBackend(object):
+class SecondBackend(BaseBackend):
     message = "I am the second backend"
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def handle(self, *args, **kwargs):
-        return self.message
 
 
 @step(u'I have a single backend configured')
@@ -85,6 +89,26 @@ def backend_call(step, method):
     except Exception, e:
         world.exception = e
 
+@step(u'When I call "(.*)" with args on the backend')
+def when_i_call_group1_with_args_on_the_backend(step, method):
+    assert hasattr(world.backend, method)
+    world.provided_args = ("Hello world", random.randint(100, 200))
+    try:
+        world.result = getattr(world.backend, method)(*world.provided_args)
+    except Exception, e:
+        world.exception = e
+    
+@step(u'When I call "(.*)" with kwargs on the backend')
+def when_i_call_group1_with_kwargs_on_the_backend(step, method):
+    assert hasattr(world.backend, method)
+    world.provided_kwargs = {
+            "msg": "Hello world",
+            "random": random.randint(100, 200),
+    }
+    try:
+        world.result = getattr(world.backend, method)(**world.provided_kwargs)
+    except Exception, e:
+        world.exception = e
 
 @step(u'I should have a copy of the originally configured backend')
 def expect_single_backend(step):
@@ -126,6 +150,11 @@ def create_backend_with_defaults(step):
 def then_i_should_get_an_instantiated_object_back_as_the_result(step):
     assert isinstance(world.result, world.backend_class)
 
+
+@step(u'and its arguments should match what was provided')
+def then_its_arguments_should_match_what_was_provided(step):
+    assert world.provided_args == world.result.arguments
+    assert world.provided_kwargs == world.result.kwarguments
 
 @step(u'I should get that function back as the result')
 def expect_function(step):
