@@ -46,14 +46,14 @@ class GenericBackend(object):
                   "please make sure it is in your settings" % self.key
             raise ImproperlyConfigured(msg)
 
-    def get_backend(self):
+    def get_backend(self, *args, **kwargs):
         def to_backend(a):
             module, backend_class = a.rsplit(".", 1)
             backend_module = import_module(module)
             return getattr(backend_module, backend_class)
 
         if type(self.configured_backend) is str:
-            return to_backend(self.configured_backend)()
+            return to_backend(self.configured_backend)(*args, **kwargs)
         else:
-            return MultipleBackendProxy(*[to_backend(a)() for a in
+            return MultipleBackendProxy(*[to_backend(a)(*args, **kwargs) for a in
                 self.configured_backend])
