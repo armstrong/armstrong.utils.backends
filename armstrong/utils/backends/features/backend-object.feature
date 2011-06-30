@@ -21,6 +21,20 @@ Feature: GenericBackend
     When I call "get_backend" on that backend
     Then I should get a MultipleBackendProxy object back
 
+  Scenario: Passing args to get_backend
+    Given I have a string configured for the backend
+    And I instantiate a new GenericBackend
+    When I call "get_backend" with args on the backend
+    Then I should get an instantiated object back as the result
+    And its arguments should match what was provided
+
+  Scenario: Passing kwargs to get_backend
+    Given I have a string configured for the backend
+    And I instantiate a new GenericBackend
+    When I call "get_backend" with kwargs on the backend
+    Then I should get an instantiated object back as the result
+    And its arguments should match what was provided
+
   Scenario: Injecting settings
     Given I have a string configured for the backend
     And I create a new GenericBackend object with a settings kwarg

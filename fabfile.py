@@ -10,8 +10,6 @@ settings = {
         'django.contrib.sites',
         'armstrong.utils.backends',
         'lettuce.django',
-        'south',
-        'mptt',
     ),
     'SITE_ID': 1,
 }
