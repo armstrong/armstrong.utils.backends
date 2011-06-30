@@ -89,7 +89,7 @@ def backend_call(step, method):
     except Exception, e:
         world.exception = e
 
-@step(u'When I call "(.*)" with args on the backend')
+@step(u'I call "(.*)" with args on the backend$')
 def when_i_call_group1_with_args_on_the_backend(step, method):
     assert hasattr(world.backend, method)
     world.provided_args = ("Hello world", random.randint(100, 200))
@@ -98,7 +98,7 @@ def when_i_call_group1_with_args_on_the_backend(step, method):
     except Exception, e:
         world.exception = e
     
-@step(u'When I call "(.*)" with kwargs on the backend')
+@step(u'I call "(.*)" with kwargs on the backend$')
 def when_i_call_group1_with_kwargs_on_the_backend(step, method):
     assert hasattr(world.backend, method)
     world.provided_kwargs = {
