@@ -304,3 +304,21 @@ def call_with_args(step, func):
 def call_with_kwargs(step, func):
     world.attr = getattr(world.proxy, func)
     world.result = world.attr(**world.provided_kwargs)
+
+
+class CustomMultipleBackendProxy(MultipleBackendProxy):
+    pass
+
+
+class CustomGenericBackend(GenericBackend):
+    proxy_class = CustomMultipleBackendProxy
+
+
+@step(u'I instantiate a new CustomGenericBackend')
+def and_i_instantiate_a_new_customgenericbackend(step):
+    world.backend = CustomGenericBackend('testable_backends')
+
+
+@step(u'Then I should get a CustomMultipleBackendProxy object back')
+def then_i_should_get_a_custommultiplebackendproxy_object_back(step):
+    assert isinstance(world.result, CustomMultipleBackendProxy)

@@ -28,6 +28,8 @@ class MultipleBackendProxy(object):
 
 
 class GenericBackend(object):
+    proxy_class = MultipleBackendProxy
+
     def __init__(self, key, settings=None, defaults=None):
         self.key = key
         if not settings:
@@ -55,5 +57,5 @@ class GenericBackend(object):
         if type(self.configured_backend) is str:
             return to_backend(self.configured_backend)(*args, **kwargs)
         else:
-            return MultipleBackendProxy(*[to_backend(a)(*args, **kwargs) for a in
+            return self.proxy_class(*[to_backend(a)(*args, **kwargs) for a in
                 self.configured_backend])

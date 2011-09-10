@@ -21,6 +21,12 @@ Feature: GenericBackend
     When I call "get_backend" on that backend
     Then I should get a MultipleBackendProxy object back
 
+  Scenario: get_backend with custom multi-handler
+    Given I have a list configured for the backend
+    And I instantiate a new CustomGenericBackend
+    When I call "get_backend" on that backend
+    Then I should get a CustomMultipleBackendProxy object back
+
   Scenario: Passing args to get_backend
     Given I have a string configured for the backend
     And I instantiate a new GenericBackend
