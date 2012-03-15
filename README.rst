@@ -39,10 +39,9 @@ All backends should return something.  If they were unable to process the
 response they should return ``armstrong.utils.backends.DID_NOT_HANDLE``
 
 
-Installation
-------------
-
-Use `pip`_ to install like this::
+Installation & Configuration
+----------------------------
+You can install the latest release of ``armstrong.apps.content`` using `pip`_:
 
     pip install armstrong.utils.backends
 
