@@ -3,10 +3,6 @@ armstrong.utils.backends
 Generic backend system to use throughout Armstrong
 
 
-.. warning:: This is development level software.  Please do not unless you are
-             familiar with what that means and are comfortable using that type
-             of software.
-
 Usage
 -----
 You can use this to handle loading one or more "backends" that need to be
