@@ -47,6 +47,7 @@ You can install the latest release of ``armstrong.apps.content`` using `pip`_:
 
 .. _pip: http://www.pip-installer.org/
 
+
 Contributing
 ------------
 
