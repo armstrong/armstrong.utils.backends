@@ -3,10 +3,6 @@ armstrong.utils.backends
 Generic backend system to use throughout Armstrong
 
 
-.. warning:: This is development level software.  Please do not unless you are
-             familiar with what that means and are comfortable using that type
-             of software.
-
 Usage
 -----
 You can use this to handle loading one or more "backends" that need to be
@@ -43,14 +39,14 @@ All backends should return something.  If they were unable to process the
 response they should return ``armstrong.utils.backends.DID_NOT_HANDLE``
 
 
-Installation
-------------
-
-Use `pip`_ to install like this::
+Installation & Configuration
+----------------------------
+You can install the latest release of ``armstrong.apps.content`` using `pip`_:
 
     pip install armstrong.utils.backends
 
 .. _pip: http://www.pip-installer.org/
+
 
 Contributing
 ------------
@@ -71,7 +67,7 @@ State of Project
 Armstrong is an open-source news platform that is freely available to any
 organization.  It is the result of a collaboration between the `Texas Tribune`_
 and `Bay Citizen`_, and a grant from the `John S. and James L. Knight
-Foundation`_.  The first release is scheduled for June, 2011.
+Foundation`_.
 
 To follow development, be sure to join the `Google Group`_.
 
@@ -87,7 +83,7 @@ probably looking for that.
 
 License
 -------
-Copyright 2011 Bay Citizen and Texas Tribune
+Copyright 2011-2012 Bay Citizen and Texas Tribune
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
