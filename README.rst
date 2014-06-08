@@ -1,5 +1,19 @@
 armstrong.utils.backends
 ========================
+
+.. image:: https://travis-ci.org/armstrong/armstrong.utils.backends.svg?branch=master
+  :target: https://travis-ci.org/armstrong/armstrong.utils.backends
+  :alt: TravisCI status
+.. image:: https://coveralls.io/repos/armstrong/armstrong.utils.backends/badge.png
+  :target: https://coveralls.io/r/armstrong/armstrong.utils.backends
+  :alt: Coverage status
+.. image:: https://pypip.in/version/armstrong.utils.backends/badge.png
+  :target: https://pypi.python.org/pypi/armstrong.utils.backends/
+  :alt: PyPI Version
+.. image:: https://pypip.in/license/armstrong.utils.backends/badge.png
+  :target: https://pypi.python.org/pypi/armstrong.utils.backends/
+  :alt: License
+
 Generic backend system to use throughout Armstrong
 
 
