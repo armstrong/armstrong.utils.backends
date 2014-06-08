@@ -5,94 +5,126 @@ Generic backend system to use throughout Armstrong
 
 Usage
 -----
-You can use this to handle loading one or more "backends" that need to be
-configured at runtime.  To create a new ``backend`` object, you would do
-something like this in your ``__init__.py``::
+Dynamically load a Python module at runtime and use it as if you'd hardcoded
+the module directly. This allows flexibility. It's polymorphism in action.
 
-    backends = GenericBackend("MY_BACKEND_KEY")
+Why? In the Armstrong internals we do a bunch of stuff via backends. If you
+want to do that stuff differently, make a class with the same interface and
+provide your class as the backend. Armstrong will work *its* magic the way
+*you* want. In many cases, Armstrong ships with support for multiple common
+scenarios (implemented as backends) and you can pick the one that fits your
+needs.
 
-``MY_BACKEND_KEY`` is the name of the key that the end user sets in their
-``settings.py`` file.  The end-user should set it to either a string or a list.
+Following the Django paradigm, create a ``key = value`` in ``setttings.py``
+where the value is a string or a list of strings of full, dotted, Python
+import paths. That module will be imported at runtime and used *exactly*
+as if you had instantiated it directly. An example::
 
-You can also provide a default backend (or backends) by setting the
-``defaults`` kwarg for ``GenericBackend``::
+    # hello/world.py
+    class Hello(object):
+        def hi(self):
+            print("Hello world!")
+
+    # hello/armstrong.py
+    class Hello(object):
+        def hi(self):
+            print("Hello Armstrong!")
+
+    # settings.py  <-- armstrong.utils.backends uses Django settings by default
+    HELLO_CLASS = "hello.armstrong.Hello"
+
+    # somewhere_else.py or in a console
+    >>> from armstrong.utils.backends import GenericBackend
+    >>> hello = GenericBackend("HELLO_CLASS").get_backend()
+    >>> hello.hi()
+    Hello Armstrong!
+
+A **default** can be provided and the process works like the standard Python
+dict.get() where if the key doesn't exist in the settings, there's a fallback.
+(This is how Armstrong specifies its defaults so you aren't required to change
+your settings.py if satisfied with the default behavior.)::
+
+    >>> backend = GenericBackend("MISSING_KEY", defaults="hello.world.Hello")
+    >>> hello = backend.get_backend()
+    >>> hello.hi()
+    Hello world!
+
+Calling ``get_backend()`` is the equivalent of instantiation. So whenever
+you're ready to use the dynamically loaded class, call ``get_backend``.
+Pass in any parameters you'd normally use. Think of it as ``__init__``.
+These are the same::
+
+   GenericBackend("HELLO_CLASS").get_backend(1, two=2)
+   Hello(1, two=2)
+
+You can pass in a **different settings** module with the ``settings`` kwarg if you
+want the backend loader to look somewhere other than Django settings.
+
+Multiple backends
+"""""""""""""""""
+Another powerful feature? Feeding in multiple possible backends. Armstrong
+will perform the action you want by going down the list of backends stopping
+at the first one that does its job. If the backend's method returns
+``DID_NOT_HANDLE``, Armstrong will try the next backend.
+A pseudo code example::
 
     default_backends = ["myapp.backends.TwitterBackend",
-                        "myapp.backends.FacebookBackend", ]
-    backends = GenericBackend("MY_BACKEND_KEY", defaults=default_backends)
+                        "myapp.backends.FacebookBackend"]
+    backend = GenericBackend("SOCIAL_NETWORKS", defaults=default_backends)
 
-When you're ready to use the backends, you can call ``get_backend`` to retrieve
-the backend to use.  This is done after instantiation to allow for the value to
-change depending on the context that it was called in.
+    # myapp.backends.py
+    class TwitterBackend(object):
+        def post(msg):
+            if not self.user.has_account:
+                return DID_NOT_HANDLE
+
+    social_network = backend.get_backend(user)
+    social_network.post("Armstrong is pretty sweet you guys")
 
 
 Writing Backends
 """"""""""""""""
-Backends are simple objects that do any particular task.  Beyond using
-``get_backend`` to handle the creation of the backend, you treat it as if you
-were calling it directly.
+Backends are classes. ``GenericBackend`` is a way to dynamically load those
+classes. Beyond using ``get_backend`` to handle the creation of the backend,
+you treat it as if you were calling it directly.
 
-All attributes (and methods) accessed on the backend are proxied to handle
-dispatching to multiple backends.
-
-All backends should return something.  If they were unable to process the
-response they should return ``armstrong.utils.backends.DID_NOT_HANDLE``
+If you are using multiple backends, all attributes (and methods) accessed on
+the backend are proxied to handle the dispatching. To have a backend abdicate
+and have the loader use the next backend in the list, have the backend
+method return ``armstrong.utils.backends.DID_NOT_HANDLE``.
 
 
 Installation & Configuration
 ----------------------------
-You can install the latest release of ``armstrong.apps.content`` using `pip`_:
 
-    pip install armstrong.utils.backends
-
-.. _pip: http://www.pip-installer.org/
+#. ``pip install armstrong.utils.backends``
 
 
 Contributing
 ------------
+Development occurs on Github. Participation is welcome!
 
-* Create something awesome -- make the code better, add some functionality,
-  whatever (this is the hardest part).
-* `Fork it`_
-* Create a topic branch to house your changes
-* Get all of your commits in the new topic branch
-* Submit a `pull request`_
+* Found a bug? File it on `Github Issues`_. Include as much detail as you
+  can and make sure to list the specific component since we use a centralized,
+  project-wide issue tracker.
+* Have code to submit? Fork the repo, consolidate your changes on a topic
+  branch and create a `pull request`_.
+* Questions, need help, discussion? Use our `Google Group`_ mailing list.
 
-.. _Fork it: http://help.github.com/forking/
+.. _Github Issues: https://github.com/armstrong/armstrong/issues
 .. _pull request: http://help.github.com/pull-requests/
+.. _Google Group: http://groups.google.com/group/armstrongcms
 
 
 State of Project
 ----------------
-Armstrong is an open-source news platform that is freely available to any
-organization.  It is the result of a collaboration between the `Texas Tribune`_
-and `Bay Citizen`_, and a grant from the `John S. and James L. Knight
-Foundation`_.
+`Armstrong`_ is an open-source news platform that is freely available to any
+organization. It is the result of a collaboration between the `Texas Tribune`_
+and `Bay Citizen`_ and a grant from the `John S. and James L. Knight
+Foundation`_. Armstrong is available as a complete bundle and as individual,
+stand-alone components.
 
-To follow development, be sure to join the `Google Group`_.
-
-``armstrong.utils.backends`` is part of the `Armstrong`_ project.  You're
-probably looking for that.
-
-.. _Texas Tribune: http://www.texastribune.org/
-.. _Bay Citizen: http://www.baycitizen.org/
-.. _John S. and James L. Knight Foundation: http://www.knightfoundation.org/
-.. _Google Group: http://groups.google.com/group/armstrongcms
 .. _Armstrong: http://www.armstrongcms.org/
-
-
-License
--------
-Copyright 2011-2012 Bay Citizen and Texas Tribune
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+.. _Bay Citizen: http://www.baycitizen.org/
+.. _Texas Tribune: http://www.texastribune.org/
+.. _John S. and James L. Knight Foundation: http://www.knightfoundation.org/
