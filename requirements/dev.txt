@@ -1,7 +1,1 @@
--r ./base.txt
-armstrong.dev>=1.1.0
-fabric>=1.1
-fudge
--e git://github.com/tswicegood/lettuce.git@fix-port-issues#egg=lettuce
--e git://github.com/domain51/d51.django.virtualenv.base#egg=d51.django.virtualenv.base
--e git://github.com/domain51/d51.django.virtualenv.test_runner#egg=d51.django.virtualenv.test_runner
+armstrong.dev>=2.0,<3.0
