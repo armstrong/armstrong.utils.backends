@@ -1,0 +1,6 @@
+[run]
+source = armstrong.utils.backends
+branch = True
+
+[html]
+directory = coverage

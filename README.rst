@@ -1,5 +1,19 @@
 armstrong.utils.backends
 ========================
+
+.. image:: https://travis-ci.org/armstrong/armstrong.utils.backends.svg?branch=master
+  :target: https://travis-ci.org/armstrong/armstrong.utils.backends
+  :alt: TravisCI status
+.. image:: https://coveralls.io/repos/armstrong/armstrong.utils.backends/badge.png
+  :target: https://coveralls.io/r/armstrong/armstrong.utils.backends
+  :alt: Coverage status
+.. image:: https://pypip.in/version/armstrong.utils.backends/badge.png
+  :target: https://pypi.python.org/pypi/armstrong.utils.backends/
+  :alt: PyPI Version
+.. image:: https://pypip.in/license/armstrong.utils.backends/badge.png
+  :target: https://pypi.python.org/pypi/armstrong.utils.backends/
+  :alt: License
+
 Generic backend system to use throughout Armstrong
 
 
@@ -107,12 +121,16 @@ Development occurs on Github. Participation is welcome!
 * Found a bug? File it on `Github Issues`_. Include as much detail as you
   can and make sure to list the specific component since we use a centralized,
   project-wide issue tracker.
+* Testing? ``pip install tox`` and run ``tox``
 * Have code to submit? Fork the repo, consolidate your changes on a topic
-  branch and create a `pull request`_.
+  branch and create a `pull request`_. The `armstrong.dev`_ package provides
+  tools for testing, coverage and South migration as well as making it very
+  easy to run a full Django environment with this component's settings.
 * Questions, need help, discussion? Use our `Google Group`_ mailing list.
 
 .. _Github Issues: https://github.com/armstrong/armstrong/issues
 .. _pull request: http://help.github.com/pull-requests/
+.. _armstrong.dev: https://github.com/armstrong/armstrong.dev
 .. _Google Group: http://groups.google.com/group/armstrongcms
 
 
