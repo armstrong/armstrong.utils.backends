@@ -3,7 +3,14 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
 
+# DEPRECATED: To be removed in Backends 2.0
+import warnings
 DID_NOT_HANDLE = object()
+
+
+class BackendDidNotHandle(Exception):
+    """The backend did not perform the expected action"""
+    pass
 
 
 class Proxy(object):
@@ -13,8 +20,16 @@ class Proxy(object):
 
     def __call__(self, *args, **kwargs):
         for possible in self.possibles:
-            ret = getattr(possible, self.attr, None)(*args, **kwargs)
+            try:
+                ret = getattr(possible, self.attr, None)(*args, **kwargs)
+            except BackendDidNotHandle:
+                continue
+            # DEPRECATED: To be removed in Backends 2.0
             if ret is DID_NOT_HANDLE:
+                errmsg = ("DID_NOT_HANDLE is deprecated and will be removed in "
+                          "armstrong.utils.backends 2.0. "
+                          "Use BackendDidNotHandle.")
+                warnings.warn(errmsg, DeprecationWarning, stacklevel=2)
                 continue
             return ret
 

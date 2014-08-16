@@ -1,10 +1,12 @@
 import fudge
+import warnings
 from django.conf import settings as django_settings
 from django.core.exceptions import ImproperlyConfigured
 
 from armstrong.dev.tests.utils.base import ArmstrongTestCase
 from armstrong.utils.backends.base import (
-    Proxy, MultipleBackendProxy, GenericBackend, DID_NOT_HANDLE)
+    Proxy, MultipleBackendProxy, GenericBackend, BackendDidNotHandle,
+    DID_NOT_HANDLE)
 from .support.backends import UseThisOne
 
 
@@ -33,11 +35,21 @@ class ProxyTestCase(ArmstrongTestCase):
         self.assertEqual(p('arg1', kw=1), 1)
 
     @fudge.test
-    def test_skips_did_not_handle(self):
-        obj1 = fudge.Fake().expects('func').returns(DID_NOT_HANDLE)
+    def test_skips_backenddidnothandle(self):
+        obj1 = fudge.Fake().expects('func').raises(BackendDidNotHandle)
         obj2 = fudge.Fake().expects('func').with_args('arg1', kw=1)
         p = Proxy([obj1, obj2], 'func')
         p('arg1', kw=1)
+
+    # DEPRECATED: To be removed in Backends 2.0
+    @fudge.test
+    def test_skips_did_not_handle(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            obj1 = fudge.Fake().expects('func').returns(DID_NOT_HANDLE)
+            obj2 = fudge.Fake().expects('func').with_args('arg1', kw=1)
+            p = Proxy([obj1, obj2], 'func')
+            p('arg1', kw=1)
 
     @fudge.test
     def test_returns_expected_value(self):
@@ -49,10 +61,20 @@ class ProxyTestCase(ArmstrongTestCase):
 class MultipleBackendProxyTestCase(ArmstrongTestCase):
     @fudge.test
     def test_wraps_multiple_things_in_proxy(self):
-        obj1 = fudge.Fake().expects('func').returns(DID_NOT_HANDLE)
+        obj1 = fudge.Fake().expects('func').raises(BackendDidNotHandle)
         obj2 = fudge.Fake().provides('func').returns(2)
         m = MultipleBackendProxy(obj1, obj2)
         self.assertEqual(m.func(), 2)
+
+    # DEPRECATED: To be removed in Backends 2.0
+    @fudge.test
+    def test_wraps_multiple_things_in_proxy_deprecated(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            obj1 = fudge.Fake().expects('func').returns(DID_NOT_HANDLE)
+            obj2 = fudge.Fake().provides('func').returns(2)
+            m = MultipleBackendProxy(obj1, obj2)
+            self.assertEqual(m.func(), 2)
 
 
 class GenericBackendTestCase(ArmstrongTestCase):

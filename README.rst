@@ -78,8 +78,8 @@ Multiple backends
 """""""""""""""""
 Another powerful feature? Feeding in multiple possible backends. Armstrong
 will perform the action you want by going down the list of backends stopping
-at the first one that does its job. If the backend's method returns
-``DID_NOT_HANDLE``, Armstrong will try the next backend.
+at the first one that does its job. If the backend's method raises a
+``BackendDidNotHandle`` exception, Armstrong will try the next backend.
 A pseudo code example::
 
     default_backends = ["myapp.backends.TwitterBackend",
@@ -90,7 +90,7 @@ A pseudo code example::
     class TwitterBackend(object):
         def post(msg):
             if not self.user.has_account:
-                return DID_NOT_HANDLE
+                raise BackendDidNotHandle("No account for that user")
 
     social_network = backend.get_backend(user)
     social_network.post("Armstrong is pretty sweet you guys")
@@ -105,7 +105,7 @@ you treat it as if you were calling it directly.
 If you are using multiple backends, all attributes (and methods) accessed on
 the backend are proxied to handle the dispatching. To have a backend abdicate
 and have the loader use the next backend in the list, have the backend
-method return ``armstrong.utils.backends.DID_NOT_HANDLE``.
+method raise ``armstrong.utils.backends.BackendDidNotHandle``.
 
 
 Installation & Configuration
