@@ -7,6 +7,8 @@ CHANGES
 - **DEPRECATION:** deprecate DID_NOT_HANDLE. Raising a ``BackendDidNotHandle``
   exception is now the preferred way to skip when using multiple backends.
 
+- Support for Django 1.7 (removes a deprecation warning)
+
 - Expanded documentation with examples
 
 - Use Setuptools and pkg_resources for namespacing

@@ -1,6 +1,10 @@
 from django.conf import settings as default_settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.importlib import import_module
+try:
+    from importlib import import_module
+except ImportError:  # PY26 # pragma: no cover
+    from functools import partial
+    import_module = partial(__import__, fromlist=[''])
 
 
 # DEPRECATED: To be removed in Backends 2.0
