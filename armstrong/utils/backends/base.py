@@ -51,9 +51,7 @@ class GenericBackend(object):
 
     def __init__(self, key, settings=None, defaults=None):
         self.key = key
-        if not settings:
-            settings = default_settings
-        self.settings = settings
+        self.settings = settings or default_settings
         self.defaults = defaults
 
     @property
@@ -76,5 +74,5 @@ class GenericBackend(object):
         if type(self.configured_backend) is str:
             return to_backend(self.configured_backend)(*args, **kwargs)
         else:
-            return self.proxy_class(*[to_backend(a)(*args, **kwargs) for a in
-                self.configured_backend])
+            return self.proxy_class(*[to_backend(a)(*args, **kwargs)
+                                      for a in self.configured_backend])
