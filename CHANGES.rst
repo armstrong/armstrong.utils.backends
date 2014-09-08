@@ -1,6 +1,13 @@
 CHANGES
 =======
 
+1.1.1 (2014-09-07)
+------------------
+
+- Fix relative imports in Python 2.6. All Djangos supporting 2.6 provide
+  ``import_module``, which is more reliable than ``__import__``.
+
+
 1.1.0 (2014-09-05)
 ------------------
 

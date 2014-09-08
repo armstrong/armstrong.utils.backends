@@ -3,8 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 try:
     from importlib import import_module
 except ImportError:  # PY26 # pragma: no cover
-    from functools import partial
-    import_module = partial(__import__, fromlist=[''])
+    from django.utils.importlib import import_module
 
 
 # DEPRECATED: To be removed in Backends 2.0
